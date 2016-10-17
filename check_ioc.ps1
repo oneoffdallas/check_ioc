@@ -117,11 +117,11 @@ $ArgTimeQuery = ($ArgLastMinutes*60*1000) # XML queries must be in micro seconds
 $EventMessageLength = 800 # main event information is about 30; should be around 800 to get a majority of details including the message text
 
 # Change the values to 0 for items you do not want to check
-$SuccessfulPtHCheck = 1 #(4.15) detects pass the hash attempts; may include false indicators in cases where remote desktop or remoteapp is utilized
+$SuccessfulPtHCheck = 1 #(4.15) detects pass the hash attempts; may include false indicators in cases where remote desktop or remoteapp is utilized; added KeyLength to improve reliability (Thanks Dave Kennedy)
 $FailedPtHCheck = 1 #(4.15) detects failed pass the hash attempts; same false indicator warning as PtH above
-$LogClearCheck = 1 # (4.6) checks for all types of event log clears
+$LogClearCheck = 0 # (4.6) checks for all types of event log clears
 $FirewallRuleModCheck = 1 # (4.5) checks for firewall rule adds, changes and deletions, may cause false indicators
-$ServiceAddCheck = 1 # (4.7) checks for new Windows services
+$ServiceAddCheck = 0 # (4.7) checks for new Windows services
 $AppErrorCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
 $AppHangCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
 $BSODCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
@@ -145,6 +145,7 @@ $InvalidImageHashFileCheck  = 1 # (4.9) kernel driver signing - detected an inva
 $InvalidPageHashFileCheck = 1 # (4.9) kernel driver signing - detected an invalid page hash of an image file
 $CodeIntegrityCheck = 0 # (4.9) kernel driver signing - code integrity check
 $FailedKernelDriverCheck = 1 # (4.9) kernel driver signing - failed kernel driver loading
+$LSASAMPassChangesCheck = 0 # indicators code is loaded into LSA (Local Security Authority) or SAM (Security Account Manager) and watching for password changes (Thanks Jessica Payne)
 $NewMassStorageInstallCheck = 0 # (4.13) new mass storage installation; this occurs every time the device is inserted (not just the first time)
 # Recommend to disable all customer experience tasks to avoid false indicators with line below. Turn off in "Action Center" and then disable *ALL* jobs under 
 # "Microsoft/Windows/Application Experience" and "Customer Experience Improvement Program" (and "Server" jobs if it exists under the latter library)
@@ -175,6 +176,8 @@ $SuccessPtHQuery += @'
 		*[EventData[Data[@Name="LogonType"] and (Data="3")]]
 		and
 		*[EventData[Data[@Name="AuthenticationPackageName"] = "NTLM"]]
+		and
+		*[EventData[Data[@Name="KeyLength"] = "0"]]
 		and
 		*[EventData[Data[@Name="TargetUserName"] != "ANONYMOUS LOGON"]]
 		</Select> 
@@ -323,6 +326,11 @@ $Events = Get-winevent -FilterHashtable @{logname='System'; id=219; ProviderName
 CreateEventsOutput "FailedKernelDriver"
 }
 
+If ($LSASAMPassChangesCheck -eq 1) {
+$Events = Get-winevent -FilterHashtable @{logname='Security'; id=4610,4611,4614,4622; Level=0; StartTime = (Get-Date).AddMinutes(-$ArgLastMinutes) } -ea SilentlyContinue | Select-Object -Property $Properties 
+CreateEventsOutput "LSASAMPassChanges"
+}
+
 If ($NewMassStorageInstallCheck -eq 1) {
 $Events = Get-winevent -FilterHashtable @{logname='Microsoft-Windows-Kernel-PnP/Configuration'; id=400,410; ProviderName='Microsoft-Windows-Kernel-PnP'; StartTime = (Get-Date).AddMinutes(-$ArgLastMinutes) } -ea SilentlyContinue | Select-Object -Property $Properties 
 CreateEventsOutput "NewMassStorageInstall"
@@ -361,3 +369,4 @@ $OutputString += "in the last $ArgLastMinutes minutes"
 write-output $OutputString
 exit 0 # the 0 returns to Nagios as all is well 
 }
+
