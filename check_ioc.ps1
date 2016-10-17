@@ -119,9 +119,9 @@ $EventMessageLength = 800 # main event information is about 30; should be around
 # Change the values to 0 for items you do not want to check
 $SuccessfulPtHCheck = 1 #(4.15) detects pass the hash attempts; may include false indicators in cases where remote desktop or remoteapp is utilized; added KeyLength to improve reliability (Thanks Dave Kennedy)
 $FailedPtHCheck = 1 #(4.15) detects failed pass the hash attempts; same false indicator warning as PtH above
-$LogClearCheck = 0 # (4.6) checks for all types of event log clears
+$LogClearCheck = 1 # (4.6) checks for all types of event log clears
 $FirewallRuleModCheck = 1 # (4.5) checks for firewall rule adds, changes and deletions, may cause false indicators
-$ServiceAddCheck = 0 # (4.7) checks for new Windows services
+$ServiceAddCheck = 1 # (4.7) checks for new Windows services
 $AppErrorCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
 $AppHangCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
 $BSODCheck = 0 # (4.2) may cause false indicators as applications do crash on their own; very useful in well-known environments
