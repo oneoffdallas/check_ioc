@@ -1,6 +1,9 @@
 #
-# check_ioc.ps1 - v1.3 - 4August2015 - by Dallas Haselhorst
+# check_ioc.ps1 - v1.4 - 6November2016 - by Dallas Haselhorst
 #	Look for the associated SANS Gold Paper to describe this work in greater detail as well if you'd like to learn more.
+#	https://www.sans.org/reading-room/whitepapers/critical/uncovering-indicators-compromise-ioc-powershell-event-logs-traditional-monitorin-36352
+#	The most up-to-date version of the Gold Paper may also be found on my blog post.
+# 	http://linuxincluded.com/uncovering-indicators-of-compromise/
 #	
 #	This script attempts to locate indicators of compromise on Windows systems. Much of the legwork was performed by the
 #	National Security Agency (NSA) in the white paper, "Spotting the Adversary with Windows Event Log Monitoring" (16Dec2013) so a
@@ -206,6 +209,8 @@ $FailedPtHQuery += @'
 		*[EventData[Data[@Name="LogonType"] and (Data="3")]]
 		and
 		*[EventData[Data[@Name="AuthenticationPackageName"] = "NTLM"]]
+		and
+		*[EventData[Data[@Name="KeyLength"] = "0"]]
 		and
 		*[EventData[Data[@Name="TargetUserName"] != "ANONYMOUS LOGON"]]
 		</Select> 
