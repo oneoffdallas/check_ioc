@@ -227,7 +227,7 @@ CreateEventsOutput "LogClear"
 }
 
 If ($FirewallRuleModCheck -eq 1) {
-$Events = Get-winevent -FilterHashtable @{logname='Microsoft-Windows-Windows Firewall With Advanced Security/Firewall'; id=2004,2005,2006,2033; StartTime = (Get-Date).AddMinutes(-$ArgLastMinutes) } -ea SilentlyContinue | Select-Object -Property $Properties 
+$Events = Get-winevent -FilterHashtable @{logname='Microsoft-Windows-Windows Firewall With Advanced Security/Firewall'; id=2003,2004,2005,2006,2033; StartTime = (Get-Date).AddMinutes(-$ArgLastMinutes) } -ea SilentlyContinue | Select-Object -Property $Properties 
 CreateEventsOutput "FirewallRuleMod"
 }
 
